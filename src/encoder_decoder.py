@@ -1,6 +1,6 @@
 from torch import nn
-from modules import MultiHeadAttention, CrossAttention, LayerNorm, FeedForward
-from utils import generate_positional_encoding
+from src.modules import MultiHeadAttention, CrossAttention, LayerNorm, FeedForward
+from src.utils import generate_positional_encoding
 
 class EncoderLayer(nn.Module):
     def __init__(self, d_model, num_heads, d_ff):
@@ -52,7 +52,7 @@ class DecoderLayer(nn.Module):
         x = self.layer_norm1(decoder_input + masked_attn_out)
         
         # Sub-layer 2: Cross-Attention (Pass both decoder and encoder states)
-        cross_attn_out = self.cross_attention(decoder_input=x, encoder_output=encoder_output)
+        cross_attn_out = self.cross_attention(x, encoder_output)
         x = self.layer_norm2(x + cross_attn_out)
         
         # Sub-layer 3: Feed Forward

@@ -1,28 +1,28 @@
-import torch
 import torch.nn as nn
-from encodr_decoder import Encoder, Decoder
+from src.encoder_decoder import Encoder, Decoder
 
 class Transformer(nn.Module):
-    def __init__(self, d_model, num_heads, d_ff, num_layers, vocab_size):
+    def __init__(self, src_vocab_size, trg_vocab_size, d_model, num_heads, d_ff, num_layers):
         super().__init__()
-        # 1. Core structural blocks
+        # 1. Learnable Token Embeddings
+        self.src_embedding = nn.Embedding(src_vocab_size, d_model)
+        self.trg_embedding = nn.Embedding(trg_vocab_size, d_model)
+        
+        # 2. Structural blocks (Your custom components)
         self.encoder = Encoder(d_model, num_heads, d_ff, num_layers)
         self.decoder = Decoder(d_model, num_heads, d_ff, num_layers)
         
-        # 2. Final Output Projection Layer (The LM Head)
-        self.fc_out = nn.Linear(d_model, vocab_size)
+        # 3. LM Head to predict vocabulary IDs
+        self.fc_out = nn.Linear(d_model, trg_vocab_size)
 
     def forward(self, source_tokens, target_tokens):
-        # Step 1: Run the source text through the full Encoder stack
-        encoder_output = self.encoder(source_tokens)
+        # Pass raw token IDs through the respective embedding layers
+        src_emb = self.src_embedding(source_tokens)
+        trg_emb = self.trg_embedding(target_tokens)
         
-        # Step 2: Run the target text + encoder output through the Decoder stack
-        decoder_output = self.decoder(target_tokens, encoder_output)
+        # Core forward pass pipeline
+        encoder_output = self.encoder(src_emb)
+        decoder_output = self.decoder(trg_emb, encoder_output)
         
-        # Step 3: Project decoder features to vocabulary size
         logits = self.fc_out(decoder_output)
-        
-        # Step 4: Apply Softmax to get probability distribution over the vocab
-        output_probabilities = torch.softmax(logits, dim=-1)
-        
-        return output_probabilities
+        return logits # Return raw logits for PyTorch's CrossEntropyLoss

@@ -23,3 +23,6 @@ But if KV cache is not there then we need to give all previous generated inputs 
 What KV cache does is it stores the K and V transfromations of all the previously generated tokens so that the input of the newly generated token can query with them also. Hence now we dont need to pass all the previous tokens generated as inputs only the prev generated so that we can calculate the K and V for the newly generated and append it to the KV cache
 
 KV cache is not needed at time of training and mask is not needed at time of inference
+
+## Positional Encoding: RoPE vs Sinusoidal
+In rope instead of producing absolute vectors which doesnt contribute in any extrapolation and doesnt ingest the positins directly into the attention matrix but they distort the input as are additive, we use the concept of rotation of token embeddings in the visualization space before calculation of the attention matrix. This leads to better idea of relative positions as it preserved it like if two tokens are three tokens apart then whatever there position is they will portray the same relative distance in the Attention matrix unlike the sinusoidal which creates non linear aboslute position vectors

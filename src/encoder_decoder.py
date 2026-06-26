@@ -24,7 +24,7 @@ class Encoder(nn.Module):
         self.layers = nn.ModuleList([EncoderLayer(d_model, num_heads, d_ff) for _ in range(num_layers)])
 
     def forward(self, input_tensor):
-        input_tensor = input_tensor + generate_positional_encoding(input_tensor)
+        input_tensor = input_tensor
         for layer in self.layers:
             input_tensor = layer(input_tensor)
             
@@ -70,7 +70,7 @@ class Decoder(nn.Module):
 
     def forward(self, decoder_input, encoder_output):
         # 1. Add positional encoding to the target sequence once at the start
-        decoder_input = decoder_input + generate_positional_encoding(decoder_input)
+        decoder_input = decoder_input
         
         # 2. Pass sequentially through all stacked decoder layers
         for layer in self.layers:

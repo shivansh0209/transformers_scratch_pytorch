@@ -6,6 +6,25 @@ import zipfile
 import tensorflow as tf
 from keras.layers import TextVectorization
 
+def rotational_positional_encoding(input_tensor, theta_base=10000.0):
+    batch_size, num_heads, seq_len, head_dim = input_tensor.size()
+    assert head_dim % 2 == 0, "Head dimension must be even to split into pairs."
+    dim_pairs = head_dim // 2
+    inv_freq = 1.0 / (theta_base ** (torch.arange(0, head_dim, 2).float() / head_dim))
+    inv_freq = inv_freq.to(input_tensor.device)
+    t = torch.arange(seq_len, dtype=torch.float32, device=input_tensor.device)
+    # Outer product gives a matrix of shape [seq_len, head_dim // 2]
+    freqs = torch.outer(t, inv_freq) 
+    
+    emb = torch.cat((freqs, freqs), dim=-1)
+
+    cos = emb.cos().unsqueeze(0).unsqueeze(1) # shape: [1, 1, seq_len, head_dim]
+    sin = emb.sin().unsqueeze(0).unsqueeze(1) # shape: [1, 1, seq_len, head_dim]
+    x1 = input_tensor[..., :dim_pairs]
+    x2 = input_tensor[..., dim_pairs:]
+    rotated_tensor = torch.cat((-x2, x1), dim=-1)
+    return (input_tensor * cos) + (rotated_tensor * sin)
+
 # def generate_positional_encoding(input_tensor):
 #     batch_size, seq_len, d_model = input_tensor.size()
 #     positional_encoding = torch.zeros_like(input_tensor, dtype=torch.float32)

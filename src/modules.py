@@ -1,6 +1,6 @@
 import torch
 import torch.nn as nn
-
+from src.utils import rotational_positional_encoding
 # class MultiHeadAttention(nn.Module):
 #     def __init__(self, d_model, num_heads=1):
 #         super().__init__()
@@ -77,6 +77,8 @@ class MultiHeadAttention(nn.Module):
         # 3. Compute Attention Scores for all heads in parallel
         # Q matrix multiplied by transposed K matrix across the last two dimensions
         # Shape: (batch_size, num_heads, seq_len, seq_len)
+        Q = rotational_positional_encoding(Q)
+        K = rotational_positional_encoding(K)
         attention_scores = torch.matmul(Q, K.transpose(-2, -1)) / (self.d_k ** 0.5)
 
         # 4. Mask application using broadcasting (no repeat needed!)

@@ -56,6 +56,12 @@ Building the math from scratch is one hurdle; making it run efficiently is anoth
 
 The Result: Training time collapsed from 20 minutes down to a blazing 1:30 minutes per epoch on CPU, validating the massive performance gains of utilizing raw C++ hardware acceleration via PyTorch tensors.
 
+### Implemented modern adaptation - Rope
+In rope instead of "producing absolute vectors which doesnt contribute in any extrapolation and doesnt ingest the positions directly into the attention matrix but they distort the input as are additive", we use the concept of rotation of token embeddings in the visualization space before calculation of the attention matrix.
+
+This leads to better idea of relative positions as it preserved it like if two tokens are three tokens apart then whatever there position is they will portray the same relative distance in the Attention matrix unlike the sinusoidal which creates non linear aboslute position vectors
+
+
 # 📈 Model Performance & Current Results
 
 The network was evaluated on an **English-to-French translation task** using a **20,000-sample subset** of the **Anki sentence pair dataset**.
